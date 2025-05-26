@@ -10,7 +10,7 @@ def main():
     dca.run()
 
     # Initialize the AI Query Assistant
-    aqa = AIQueryAssistant(dca.get_consolidated_data())
+    aqa = AIQueryAssistant(dca.consolidated_data)
     aqa.start_interaction()
 
 if __name__ == "__main__":
