@@ -1,6 +1,6 @@
 metadata:
   data_schema_version: '1.0'
-  last_updated_utc: '2025-05-26T00:51:38.836821Z'
+  last_updated_utc: '2025-05-26T01:12:31.511902Z'
   source_urls:
     main_index: https://www.cisco.com/c/en/us/support/storage-networking/mds-9000-nx-os-san-os-software/products-release-notes-list.html
     recommended_releases: https://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/b_MDS_NX-OS_Recommended_Releases.html
@@ -14,327 +14,508 @@ releases:
       open_systems: []
     epld_info: null
     full_version_string: 9.2(2)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-25'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.2.2
-      id: CSC922001
-    - description: Performance improvement in 9.2.2
-      id: CSC922002
+    - description: to the Open Issues section
+      id: CSCwo03706
+    - description: in the Resolved Issues section
+      id: CSCvv93277
+    - description: in the Open Issues section
+      id: CSCwb48133
+    - description: in the Open Issues section
+      id: CSCwb29379
+    - description: in the Open Issues section
+      id: CSCvw91665
+    - description: in the Open Issues section
+      id: CSCwb07996
+    - description: in the Open Issues section
+      id: CSCwa60601
+    - description: Module hangs or resets after 450-470 days uptime due to 'machine
+        check' error
+      id: CSCvz61883
+    - description: Add missing newlines in kernel nvram crash log output
+      id: CSCvz97917
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-922.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.2(2)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.2.2 (sample data)
-        source_range_description: FICON compatible versions to 9.2.2
+      - notes: FICON upgrade path to 9.2(2)
+        source_range_description: FICON compatible versions to 9.2(2)
         source_range_logic:
-          condition: <9.2.2
+          condition: <9.2
           type: semver_range
         steps:
-        - 9.2.2
+        - 9.2(2)
       open_systems:
-      - notes: Direct upgrade to 9.2.2 (sample data)
-        source_range_description: Any version prior to 9.2.2
+      - notes: Direct upgrade path to 9.2(2)
+        source_range_description: Prior versions to 9.2(2)
         source_range_logic:
-          condition: <9.2.2
+          condition: <9.2
           type: semver_range
         steps:
-        - 9.2.2
+        - 9.2(2)
   9.3.1:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.3(1)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-25'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.3.1
-      id: CSC931001
-    - description: Performance improvement in 9.3.1
-      id: CSC931002
+    - description: to the Open Issues section
+      id: CSCwo03706
+    - description: to the Open Issues section
+      id: CSCwf85545
+    - description: in the Open Issues section
+      id: CSCwe08911
+    - description: in the Resolved Issues section
+      id: CSCwb48133
+    - description: in the Open Issues section
+      id: CSCwd55552
+    - description: in the Resolved Issues section
+      id: CSCwb29379
+    - description: "MDS crashes with \"Anon_Resident_Mem 0 KB being killed due to\
+        \ lack of memory\" \n 9"
+      id: CSCvw91665
+    - description: MDS:User scripts(ESRS) causing 100% consumption of /dev/shm folder
+        on MDS switch
+      id: CSCwa60561
+    - description: "MDS switch continuously rebooting \n 8"
+      id: CSCwb36935
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-931.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.3(1)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.3.1 (sample data)
-        source_range_description: FICON compatible versions to 9.3.1
+      - notes: FICON upgrade path to 9.3(1)
+        source_range_description: FICON compatible versions to 9.3(1)
         source_range_logic:
-          condition: <9.3.1
+          condition: <9.3
           type: semver_range
         steps:
-        - 9.3.1
+        - 9.3(1)
       open_systems:
-      - notes: Direct upgrade to 9.3.1 (sample data)
-        source_range_description: Any version prior to 9.3.1
+      - notes: Direct upgrade path to 9.3(1)
+        source_range_description: Prior versions to 9.3(1)
         source_range_logic:
-          condition: <9.3.1
+          condition: <9.3
           type: semver_range
         steps:
-        - 9.3.1
+        - 9.3(1)
   9.3.2:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.3(2)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-25'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.3.2
-      id: CSC932001
-    - description: Performance improvement in 9.3.2
-      id: CSC932002
+    - description: in the Resolved Issues section
+      id: CSCwd00610
+    - description: to the Open Issues section
+      id: CSCwi36075
+    - description: in the Resolved Issues section
+      id: CSCvv93277
+    - description: in the Open Issues section
+      id: CSCwd74002
+    - description: and CSCwd55552 in the Resolved Issues section
+      id: CSCwd82287
+    - description: "MDS switch slow or unresponsive after reset of multiple interfaces\
+        \ \n 9"
+      id: CSCwd00610
+    - description: "Multiple SNMPD crashes during switchover and there is a corrupt\
+        \ SNMP server host configuration \n 8"
+      id: CSCwd27053
+    - description: IPS 10/40G port moves to HW_failure state while upgrade/downgrade
+        to 9
+      id: CSCwd55552
+    - description: "LDAP authentication is failing only when the ip name-server configured\
+        \ on the switch \n 8"
+      id: CSCvk27502
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-932.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.3(2)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.3.2 (sample data)
-        source_range_description: FICON compatible versions to 9.3.2
+      - notes: FICON upgrade path to 9.3(2)
+        source_range_description: FICON compatible versions to 9.3(2)
         source_range_logic:
-          condition: <9.3.2
+          condition: <9.3
           type: semver_range
         steps:
-        - 9.3.2
+        - 9.3(2)
       open_systems:
-      - notes: Direct upgrade to 9.3.2 (sample data)
-        source_range_description: Any version prior to 9.3.2
+      - notes: Direct upgrade path to 9.3(2)
+        source_range_description: Prior versions to 9.3(2)
         source_range_logic:
-          condition: <9.3.2
+          condition: <9.3
           type: semver_range
         steps:
-        - 9.3.2
+        - 9.3(2)
   9.3.2a:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.3(2a)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-25'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.3.2a
-      id: CSC932a001
-    - description: Performance improvement in 9.3.2a
-      id: CSC932a002
+    - description: to the Open Issues section
+      id: CSCwo03706
+    - description: to the Open Issues section
+      id: CSCwf85545
+    - description: in the Open Issues section
+      id: CSCwe08911
+    - description: '"Ldap Daemon" crashes on MDS 9000 due to heartbeat failure'
+      id: CSCwd63288
+    - description: Interface CRCs not incrementing on MDS 32G modules/switches
+      id: CSCvv93277
+    - description: "ips port stuck in init with switch reload multiple iterations\
+        \ \n 9"
+      id: CSCwd54301
+    - description: "LDAP search-filter character limit should be increased to at least\
+        \ 512 characters \n 8"
+      id: CSCvk14774
+    - description: "sudo message from \"show logging onboard migration status\" output\
+        \ should be suppressed \n 9"
+      id: CSCwe35699
+    - description: "An FC interface will not come up / switch to soft zoning \n 9"
+      id: CSCwo03706
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-932a.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.3(2a)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.3.2a (sample data)
-        source_range_description: FICON compatible versions to 9.3.2a
+      - notes: FICON upgrade path to 9.3(2a)
+        source_range_description: FICON compatible versions to 9.3(2a)
         source_range_logic:
-          condition: <9.3.2a
+          condition: <9.3
           type: semver_range
         steps:
-        - 9.3.2a
+        - 9.3(2a)
       open_systems:
-      - notes: Direct upgrade to 9.3.2a (sample data)
-        source_range_description: Any version prior to 9.3.2a
+      - notes: Direct upgrade path to 9.3(2a)
+        source_range_description: Prior versions to 9.3(2a)
         source_range_logic:
-          condition: <9.3.2a
+          condition: <9.3
           type: semver_range
         steps:
-        - 9.3.2a
+        - 9.3(2a)
   9.4.1:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.4(1)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-25'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.4.1
-      id: CSC941001
-    - description: Performance improvement in 9.4.1
-      id: CSC941002
+    - description: to the Open Issues section
+      id: CSCwo03706
+    - description: in the Open Issues section
+      id: CSCwk33644
+    - description: to the Resolved Issues section
+      id: CSCwf85545
+    - description: "License information unavailable and showing error after ISSU \n\
+        \ 9"
+      id: CSCwd63941
+    - description: "Traffic disruption in some zones after a zoneset activation \n\
+        \ 9"
+      id: CSCwe09152
+    - description: "Zoneset activation leads to traffic disruption in some zones \n\
+        \ 9"
+      id: CSCwe09928
+    - description: "Port with a faulty SFP leads to slow CLI or crashes \n 8"
+      id: CSCwe25542
+    - description: Process "licmgr" crash with Smart Licensing (SLP) on 9
+      id: CSCwe38540
+    - description: "vsh core dumped when \"callhome test inventory\" command is run\
+        \ \n 9"
+      id: CSCwe50963
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-941.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.4(1)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.4.1 (sample data)
-        source_range_description: FICON compatible versions to 9.4.1
+      - notes: FICON upgrade path to 9.4(1)
+        source_range_description: FICON compatible versions to 9.4(1)
         source_range_logic:
-          condition: <9.4.1
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.1
+        - 9.4(1)
       open_systems:
-      - notes: Direct upgrade to 9.4.1 (sample data)
-        source_range_description: Any version prior to 9.4.1
+      - notes: Direct upgrade path to 9.4(1)
+        source_range_description: Prior versions to 9.4(1)
         source_range_logic:
-          condition: <9.4.1
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.1
+        - 9.4(1)
   9.4.1a:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.4(1a)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-25'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.4.1a
-      id: CSC941a001
-    - description: Performance improvement in 9.4.1a
-      id: CSC941a002
+    - description: to the Open Issues section
+      id: CSCwo03706
+    - description: in the Open Issues section
+      id: CSCwk33644
+    - description: "A fabric switch with SFP checksum errors reloads after an ISSU\
+        \ \n 8"
+      id: CSCwh60299
+    - description: "LDAP:network-admin role not assigned to user if role is not the\
+        \ first entry in parsed roles \n 9"
+      id: CSCwf36248
+    - description: "Link does not come up on 64 Gbps FC port randomly \n 9"
+      id: CSCwf78450
+    - description: "callhome module crash on MDS 9396V platform \n 9"
+      id: CSCwh10886
+    - description: ficonstat crash af ISSU to 8
+      id: CSCwh49190
+    - description: Need more detail in "Return code 0x4093007E (Issu cannot be done,
+        bootflash is busy)
+      id: CSCvu27928
+    - description: "An FC interface will not come up / switch to soft zoning \n 9"
+      id: CSCwo03706
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-941a.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.4(1a)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.4.1a (sample data)
-        source_range_description: FICON compatible versions to 9.4.1a
+      - notes: FICON upgrade path to 9.4(1a)
+        source_range_description: FICON compatible versions to 9.4(1a)
         source_range_logic:
-          condition: <9.4.1a
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.1a
+        - 9.4(1a)
       open_systems:
-      - notes: Direct upgrade to 9.4.1a (sample data)
-        source_range_description: Any version prior to 9.4.1a
+      - notes: Direct upgrade path to 9.4(1a)
+        source_range_description: Prior versions to 9.4(1a)
         source_range_logic:
-          condition: <9.4.1a
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.1a
+        - 9.4(1a)
   9.4.2:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.4(2)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-24'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.4.2
-      id: CSC942001
-    - description: Performance improvement in 9.4.2
-      id: CSC942002
+    - description: ', which may cause authentication failures after the upgrade, only
+        in the case where TACACS is used as authentication protocol'
+      id: CSCwk14579
+    - description: and CSCwk67211 to the Open Issues section
+      id: CSCwk65461
+    - description: in the Open Issues section
+      id: CSCwn58100
+    - description: "A fabric switch with SFP checksum errors reloads after an ISSU\
+        \ \n 9"
+      id: CSCwh60299
+    - description: Nginx process crash with core files on 9
+      id: CSCwh70425
+    - description: "Sup-1 to Sup-4 migration detects problem with Sup-4 but does not\
+        \ abort migration and poweroff sup-4 \n 8"
+      id: CSCwh50527
+    - description: Nginx process crash with core files on 9
+      id: CSCwh70425
+    - description: "Internal buffers leaked by TACACS service even though TACACS service\
+        \ is not enabled \n 9"
+      id: CSCwj18866
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-942.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.4(2)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.4.2 (sample data)
-        source_range_description: FICON compatible versions to 9.4.2
+      - notes: FICON upgrade path to 9.4(2)
+        source_range_description: FICON compatible versions to 9.4(2)
         source_range_logic:
-          condition: <9.4.2
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.2
+        - 9.4(2)
       open_systems:
-      - notes: Direct upgrade to 9.4.2 (sample data)
-        source_range_description: Any version prior to 9.4.2
+      - notes: Direct upgrade path to 9.4(2)
+        source_range_description: Prior versions to 9.4(2)
         source_range_logic:
-          condition: <9.4.2
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.2
+        - 9.4(2)
   9.4.2a:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.4(2a)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-25'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.4.2a
-      id: CSC942a001
-    - description: Performance improvement in 9.4.2a
-      id: CSC942a002
+    - description: to the Open Issues section
+      id: CSCwo03706
+    - description: in the Open Issues section
+      id: CSCwk33644
+    - description: "analytics_client crash when trying to do bulk disable \n 9"
+      id: CSCwi81679
+    - description: "Internal buffers leaked by TACACS service even though TACACS service\
+        \ is not enabled \n 9"
+      id: CSCwj18866
+    - description: "Cisco NX-OS Software CLI Command Injection Vulnerability \n 9"
+      id: CSCwj97007
+    - description: TACACS authentication fails after ISSU to Cisco MDS NX-OS 9
+      id: CSCwk14579
+    - description: "Evaluation of mds-infra for OpenSSH regreSSHion vulnerability\
+        \ \n 9"
+      id: CSCwk62258
+    - description: "FDMI service crash while executing 'show fdmi database detail\u2019\
+        \ command \n 9"
+      id: CSCwk67211
+    - description: "An FC interface will not come up / switch to soft zoning \n 9"
+      id: CSCwo03706
+    - description: Hosts losing paths due to FSPF instability due to LSRs reaching
+        Max Age after upgrading to 9
+      id: CSCwn58100
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-942a.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.4(2a)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.4.2a (sample data)
-        source_range_description: FICON compatible versions to 9.4.2a
+      - notes: FICON upgrade path to 9.4(2a)
+        source_range_description: FICON compatible versions to 9.4(2a)
         source_range_logic:
-          condition: <9.4.2a
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.2a
+        - 9.4(2a)
       open_systems:
-      - notes: Direct upgrade to 9.4.2a (sample data)
-        source_range_description: Any version prior to 9.4.2a
+      - notes: Direct upgrade path to 9.4(2a)
+        source_range_description: Prior versions to 9.4(2a)
         source_range_logic:
-          condition: <9.4.2a
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.2a
+        - 9.4(2a)
   9.4.3:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.4(3)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-24'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.4.3
-      id: CSC943001
-    - description: Performance improvement in 9.4.3
-      id: CSC943002
+    - description: and CSCwk67211 to the Resolved Issues section
+      id: CSCwk65461
+    - description: in the Open Issues section
+      id: CSCwn58100
+    - description: "FCSP service crash after reload or enabling the FCSP feature \n\
+        \ 9"
+      id: CSCwj80322
+    - description: "Cisco NX-OS Software CLI Command Injection Vulnerability \n 9"
+      id: CSCwj97007
+    - description: TACACS authentication fails after ISSU to Cisco MDS NX-OS 9
+      id: CSCwk14579
+    - description: "Evaluation of MDS 9000 Series for OpenSSH regreSSHion vulnerability\
+        \ (CVE-2024-6387) \n 9"
+      id: CSCwk62258
+    - description: "ISSU fails due to BIOS Read/write lock not available in 64 Gbps\
+        \ FC linecard \n 9"
+      id: CSCwk64707
+    - description: "Soft zoning triggered after linecard hw programming failures \n\
+        \ 9"
+      id: CSCwm97871
+    - description: ISSD compatibility check failure from NX-OS 9
+      id: CSCwk65461
+    - description: "FDMI service crash while executing 'show fdmi database detail\u2019\
+        \ command \n 9"
+      id: CSCwk67211
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-943.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.4(3)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.4.3 (sample data)
-        source_range_description: FICON compatible versions to 9.4.3
+      - notes: FICON upgrade path to 9.4(3)
+        source_range_description: FICON compatible versions to 9.4(3)
         source_range_logic:
-          condition: <9.4.3
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.3
+        - 9.4(3)
       open_systems:
-      - notes: Direct upgrade to 9.4.3 (sample data)
-        source_range_description: Any version prior to 9.4.3
+      - notes: Direct upgrade path to 9.4(3)
+        source_range_description: Prior versions to 9.4(3)
         source_range_logic:
-          condition: <9.4.3
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.3
+        - 9.4(3)
   9.4.3a:
     downgrade_paths_from_this_version:
       ficon: []
       open_systems: []
     epld_info: null
     full_version_string: 9.4(3a)
-    initial_release_date: '2025-05-25'
+    initial_release_date: '2025-03-27'
     resolved_bugs:
-    - description: Sample resolved bug in NX-OS 9.4.3a
-      id: CSC943a001
-    - description: Performance improvement in 9.4.3a
-      id: CSC943a002
+    - description: )
+      id: CSCwn58100
+    - description: "An FC interface will not come up / switch to soft zoning \n 9"
+      id: CSCwo03706
+    - description: Hosts losing paths due to FSPF instability due to LSRs reaching
+        Max Age after upgrading to 9
+      id: CSCwn58100
+    - description: "64G ports not coming up after no shut from \"shut & ISSU@942a\
+        \ to 943\" with SFP power-control feature \n 9"
+      id: CSCwn64113
+    - description: "In few scale setup on 64g switches , shutting ports together leading\
+        \ to i2c rd_wr errors \n \_ \n\n\n CSCwn85703 \n Supervisor alternate bios\
+        \ upgrade should fail if it does not complete \n 9"
+      id: CSCwn77083
+    - description: "'acltcam' service crash on MDS 9700 32 Gbps linecard \n 9"
+      id: CSCwn00984
+    - description: "\"analytics\" service crashes \n 9"
+      id: CSCwo00133
+    - description: "ISL diagnostics fail to start when interface has 64 Gbps optics\
+        \ \n 9"
+      id: CSCwm68404
+    - description: "pixmc cores when flapping multiple interfaces in a port-channel\
+        \ \n 9"
+      id: CSCwm79623
+    - description: "FICON - Active link for src/dest FC port channel is wrong on 9148V\
+        \ \n 9"
+      id: CSCwm97165
     source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-943a.html
     title: Cisco MDS 9000 Series Release Notes, Release 9.4(3a)
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: FICON upgrade to 9.4.3a (sample data)
-        source_range_description: FICON compatible versions to 9.4.3a
+      - notes: FICON upgrade path to 9.4(3a)
+        source_range_description: FICON compatible versions to 9.4(3a)
         source_range_logic:
-          condition: <9.4.3a
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.3a
+        - 9.4(3a)
       open_systems:
-      - notes: Direct upgrade to 9.4.3a (sample data)
-        source_range_description: Any version prior to 9.4.3a
+      - notes: Direct upgrade path to 9.4(3a)
+        source_range_description: Prior versions to 9.4(3a)
         source_range_logic:
-          condition: <9.4.3a
+          condition: <9.4
           type: semver_range
         steps:
-        - 9.4.3a
+        - 9.4(3a)
