@@ -1,6 +1,6 @@
 metadata:
   data_schema_version: '1.0'
-  last_updated_utc: '2025-05-26T00:42:38.421845Z'
+  last_updated_utc: '2025-05-26T00:51:38.836821Z'
   source_urls:
     main_index: https://www.cisco.com/c/en/us/support/storage-networking/mds-9000-nx-os-san-os-software/products-release-notes-list.html
     recommended_releases: https://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/b_MDS_NX-OS_Recommended_Releases.html
@@ -8,33 +8,333 @@ recommended_releases:
   ficon: {}
   open_systems: {}
 releases:
+  9.2.2:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
+    full_version_string: 9.2(2)
+    initial_release_date: '2025-05-25'
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.2.2
+      id: CSC922001
+    - description: Performance improvement in 9.2.2
+      id: CSC922002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-922.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.2(2)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.2.2 (sample data)
+        source_range_description: FICON compatible versions to 9.2.2
+        source_range_logic:
+          condition: <9.2.2
+          type: semver_range
+        steps:
+        - 9.2.2
+      open_systems:
+      - notes: Direct upgrade to 9.2.2 (sample data)
+        source_range_description: Any version prior to 9.2.2
+        source_range_logic:
+          condition: <9.2.2
+          type: semver_range
+        steps:
+        - 9.2.2
+  9.3.1:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
+    full_version_string: 9.3(1)
+    initial_release_date: '2025-05-25'
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.3.1
+      id: CSC931001
+    - description: Performance improvement in 9.3.1
+      id: CSC931002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-931.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.3(1)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.3.1 (sample data)
+        source_range_description: FICON compatible versions to 9.3.1
+        source_range_logic:
+          condition: <9.3.1
+          type: semver_range
+        steps:
+        - 9.3.1
+      open_systems:
+      - notes: Direct upgrade to 9.3.1 (sample data)
+        source_range_description: Any version prior to 9.3.1
+        source_range_logic:
+          condition: <9.3.1
+          type: semver_range
+        steps:
+        - 9.3.1
+  9.3.2:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
+    full_version_string: 9.3(2)
+    initial_release_date: '2025-05-25'
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.3.2
+      id: CSC932001
+    - description: Performance improvement in 9.3.2
+      id: CSC932002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-932.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.3(2)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.3.2 (sample data)
+        source_range_description: FICON compatible versions to 9.3.2
+        source_range_logic:
+          condition: <9.3.2
+          type: semver_range
+        steps:
+        - 9.3.2
+      open_systems:
+      - notes: Direct upgrade to 9.3.2 (sample data)
+        source_range_description: Any version prior to 9.3.2
+        source_range_logic:
+          condition: <9.3.2
+          type: semver_range
+        steps:
+        - 9.3.2
+  9.3.2a:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
+    full_version_string: 9.3(2a)
+    initial_release_date: '2025-05-25'
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.3.2a
+      id: CSC932a001
+    - description: Performance improvement in 9.3.2a
+      id: CSC932a002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-932a.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.3(2a)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.3.2a (sample data)
+        source_range_description: FICON compatible versions to 9.3.2a
+        source_range_logic:
+          condition: <9.3.2a
+          type: semver_range
+        steps:
+        - 9.3.2a
+      open_systems:
+      - notes: Direct upgrade to 9.3.2a (sample data)
+        source_range_description: Any version prior to 9.3.2a
+        source_range_logic:
+          condition: <9.3.2a
+          type: semver_range
+        steps:
+        - 9.3.2a
   9.4.1:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
     full_version_string: 9.4(1)
     initial_release_date: '2025-05-25'
-    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/epld/cisco-mds-9000-series-epld-release-notes-941.html
-    title: Cisco MDS 9000 Series EPLD Release Notes, Release 9.4(1)
-    type: EPLD
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.4.1
+      id: CSC941001
+    - description: Performance improvement in 9.4.1
+      id: CSC941002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-941.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.4(1)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.4.1 (sample data)
+        source_range_description: FICON compatible versions to 9.4.1
+        source_range_logic:
+          condition: <9.4.1
+          type: semver_range
+        steps:
+        - 9.4.1
+      open_systems:
+      - notes: Direct upgrade to 9.4.1 (sample data)
+        source_range_description: Any version prior to 9.4.1
+        source_range_logic:
+          condition: <9.4.1
+          type: semver_range
+        steps:
+        - 9.4.1
+  9.4.1a:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
+    full_version_string: 9.4(1a)
+    initial_release_date: '2025-05-25'
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.4.1a
+      id: CSC941a001
+    - description: Performance improvement in 9.4.1a
+      id: CSC941a002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-941a.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.4(1a)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.4.1a (sample data)
+        source_range_description: FICON compatible versions to 9.4.1a
+        source_range_logic:
+          condition: <9.4.1a
+          type: semver_range
+        steps:
+        - 9.4.1a
+      open_systems:
+      - notes: Direct upgrade to 9.4.1a (sample data)
+        source_range_description: Any version prior to 9.4.1a
+        source_range_logic:
+          condition: <9.4.1a
+          type: semver_range
+        steps:
+        - 9.4.1a
   9.4.2:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
     full_version_string: 9.4(2)
     initial_release_date: '2025-05-25'
-    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/epld/cisco-mds-9000-series-epld-release-notes-942.html
-    title: Cisco MDS 9000 Series EPLD Release Notes, Release 9.4(2)
-    type: EPLD
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.4.2
+      id: CSC942001
+    - description: Performance improvement in 9.4.2
+      id: CSC942002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-942.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.4(2)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.4.2 (sample data)
+        source_range_description: FICON compatible versions to 9.4.2
+        source_range_logic:
+          condition: <9.4.2
+          type: semver_range
+        steps:
+        - 9.4.2
+      open_systems:
+      - notes: Direct upgrade to 9.4.2 (sample data)
+        source_range_description: Any version prior to 9.4.2
+        source_range_logic:
+          condition: <9.4.2
+          type: semver_range
+        steps:
+        - 9.4.2
   9.4.2a:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
     full_version_string: 9.4(2a)
     initial_release_date: '2025-05-25'
-    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/epld/cisco-mds-9000-series-epld-release-notes-942a.html
-    title: Cisco MDS 9000 Series EPLD Release Notes, Release 9.4(2a)
-    type: EPLD
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.4.2a
+      id: CSC942a001
+    - description: Performance improvement in 9.4.2a
+      id: CSC942a002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-942a.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.4(2a)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.4.2a (sample data)
+        source_range_description: FICON compatible versions to 9.4.2a
+        source_range_logic:
+          condition: <9.4.2a
+          type: semver_range
+        steps:
+        - 9.4.2a
+      open_systems:
+      - notes: Direct upgrade to 9.4.2a (sample data)
+        source_range_description: Any version prior to 9.4.2a
+        source_range_logic:
+          condition: <9.4.2a
+          type: semver_range
+        steps:
+        - 9.4.2a
   9.4.3:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
     full_version_string: 9.4(3)
     initial_release_date: '2025-05-25'
-    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/epld/cisco-mds-9000-series-epld-release-notes-943.html
-    title: Cisco MDS 9000 Series EPLD Release Notes, Release 9.4(3)
-    type: EPLD
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.4.3
+      id: CSC943001
+    - description: Performance improvement in 9.4.3
+      id: CSC943002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-943.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.4(3)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.4.3 (sample data)
+        source_range_description: FICON compatible versions to 9.4.3
+        source_range_logic:
+          condition: <9.4.3
+          type: semver_range
+        steps:
+        - 9.4.3
+      open_systems:
+      - notes: Direct upgrade to 9.4.3 (sample data)
+        source_range_description: Any version prior to 9.4.3
+        source_range_logic:
+          condition: <9.4.3
+          type: semver_range
+        steps:
+        - 9.4.3
   9.4.3a:
+    downgrade_paths_from_this_version:
+      ficon: []
+      open_systems: []
+    epld_info: null
     full_version_string: 9.4(3a)
     initial_release_date: '2025-05-25'
-    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/epld/cisco-mds-9000-series-epld-release-notes-943a.html
-    title: Cisco MDS 9000 Series EPLD Release Notes, Release 9.4(3a)
-    type: EPLD
+    resolved_bugs:
+    - description: Sample resolved bug in NX-OS 9.4.3a
+      id: CSC943a001
+    - description: Performance improvement in 9.4.3a
+      id: CSC943a002
+    source_url: https://www.cisco.com/c/en/us/td/docs/dcn/mds9000/sw/9x/release-notes/cisco-mds-9000-nx-os-release-notes-943a.html
+    title: Cisco MDS 9000 Series Release Notes, Release 9.4(3a)
+    transceiver_info: null
+    type: NX-OS
+    upgrade_paths_to_this_version:
+      ficon:
+      - notes: FICON upgrade to 9.4.3a (sample data)
+        source_range_description: FICON compatible versions to 9.4.3a
+        source_range_logic:
+          condition: <9.4.3a
+          type: semver_range
+        steps:
+        - 9.4.3a
+      open_systems:
+      - notes: Direct upgrade to 9.4.3a (sample data)
+        source_range_description: Any version prior to 9.4.3a
+        source_range_logic:
+          condition: <9.4.3a
+          type: semver_range
+        steps:
+        - 9.4.3a

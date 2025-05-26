@@ -43,8 +43,11 @@ class DataConsolidationAgent:
             
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Find links to release notes
+            # Find links to release notes - FOCUS ON NX-OS RELEASE NOTES
             release_links = []
+            nx_os_links = []
+            other_links = []
+            
             for link in soup.find_all('a', href=True):
                 href = link.get('href')
                 text = link.get_text().strip()
@@ -57,14 +60,29 @@ class DataConsolidationAgent:
                     'storage services interface' not in text.lower()):
                     
                     full_url = urljoin(main_url, href) if not href.startswith('http') else href
-                    release_links.append({
+                    link_data = {
                         'url': full_url,
                         'title': text,
                         'type': self._classify_release_type(text)
-                    })
+                    }
+                    
+                    # PRIORITIZE NX-OS Release Notes
+                    if self._is_nx_os_release_note(text):
+                        nx_os_links.append(link_data)
+                        print(f"✅ Found NX-OS Release Note: {text}")
+                    else:
+                        other_links.append(link_data)
             
-            print(f"Found {len(release_links)} potential release note links")
-            self.release_notes = release_links[:5]  # Limit to first 5 for initial testing
+            # Prioritize NX-OS release notes first, then others for future expansion
+            release_links = nx_os_links + other_links
+            
+            print(f"Found {len(nx_os_links)} NX-OS release note links")
+            print(f"Found {len(other_links)} other release note links (EPLD, Transceiver)")
+            print(f"Total: {len(release_links)} release note links")
+            
+            # Focus on NX-OS release notes first, limit to 10 for initial testing
+            self.release_notes = nx_os_links[:10] if nx_os_links else release_links[:5]
+            print(f"Processing {len(self.release_notes)} release notes (prioritizing NX-OS)")
             
             # Also fetch recommended releases page
             rec_url = self.consolidated_data['metadata']['source_urls']['recommended_releases']
@@ -83,14 +101,47 @@ class DataConsolidationAgent:
     def _classify_release_type(self, title):
         """Classify the type of release note based on title"""
         title_lower = title.lower()
+        
+        # Check for EPLD first (most specific)
         if 'epld' in title_lower:
             return 'EPLD'
+        
+        # Check for Transceiver
         elif 'transceiver' in title_lower:
             return 'Transceiver'
-        elif 'nx-os' in title_lower or 'san-os' in title_lower:
+        
+        # Check for main NX-OS release notes
+        elif self._is_nx_os_release_note(title):
             return 'NX-OS'
+        
+        # Default for other MDS release notes
+        elif 'mds' in title_lower and '9000' in title and 'release' in title_lower:
+            return 'NX-OS'  # Assume NX-OS if it's an MDS release note
+        
         else:
             return 'Unknown'
+
+    def _is_nx_os_release_note(self, title):
+        """Identify if a title refers to a main NX-OS release note (not EPLD or Transceiver)"""
+        title_lower = title.lower()
+        
+        # Primary indicators for NX-OS release notes
+        nx_os_indicators = [
+            'cisco mds 9000 series release notes',
+            'release notes for cisco mds 9000 series',
+            'mds 9000 series release notes',
+            'nx-os release',
+            'san-os release'
+        ]
+        
+        # Check if title contains any of the NX-OS indicators
+        for indicator in nx_os_indicators:
+            if indicator in title_lower:
+                # Exclude EPLD and Transceiver notes
+                if 'epld' not in title_lower and 'transceiver' not in title_lower:
+                    return True
+        
+        return False
 
     def parse_release_notes(self):
         """Parse the fetched release notes"""
@@ -145,28 +196,88 @@ class DataConsolidationAgent:
         """Extract relevant data from parsed release notes"""
         print("Extracting structured data...")
         
-        # For demo purposes, add sample upgrade paths and bug data
+        # For NX-OS releases, add comprehensive data structure as per SRS
         for version_key, release_data in self.consolidated_data['releases'].items():
             if release_data['type'] == 'NX-OS':
-                # Add sample upgrade paths
-                release_data['upgrade_paths_to_this_version'] = {
-                    'open_systems': [
+                print(f"  📋 Processing NX-OS release: {version_key}")
+                
+                # Add NX-OS specific data structure as per SRS requirements
+                release_data.update({
+                    'upgrade_paths_to_this_version': {
+                        'open_systems': [
+                            {
+                                'source_range_description': f'Any version prior to {version_key}',
+                                'source_range_logic': {
+                                    'type': 'semver_range',
+                                    'condition': f'<{version_key}'
+                                },
+                                'steps': [version_key],
+                                'notes': f'Direct upgrade to {version_key} (sample data)'
+                            }
+                        ],
+                        'ficon': [
+                            {
+                                'source_range_description': f'FICON compatible versions to {version_key}',
+                                'source_range_logic': {
+                                    'type': 'semver_range', 
+                                    'condition': f'<{version_key}'
+                                },
+                                'steps': [version_key],
+                                'notes': f'FICON upgrade to {version_key} (sample data)'
+                            }
+                        ]
+                    },
+                    'downgrade_paths_from_this_version': {
+                        'open_systems': [],
+                        'ficon': []
+                    },
+                    'resolved_bugs': [
                         {
-                            'source_range_description': 'Previous versions',
-                            'steps': [version_key],
-                            'notes': 'Sample upgrade path'
+                            'id': f'CSC{version_key.replace(".", "")}001',
+                            'description': f'Sample resolved bug in NX-OS {version_key}'
+                        },
+                        {
+                            'id': f'CSC{version_key.replace(".", "")}002', 
+                            'description': f'Performance improvement in {version_key}'
                         }
                     ],
-                    'ficon': []
-                }
+                    'epld_info': None,
+                    'transceiver_info': None
+                })
                 
-                # Add sample resolved bugs
-                release_data['resolved_bugs'] = [
-                    {
-                        'id': f'CSC{version_key.replace(".", "")}001',
-                        'description': f'Sample bug fix for version {version_key}'
-                    }
-                ]
+            elif release_data['type'] == 'EPLD':
+                print(f"  🔧 Processing EPLD release: {version_key}")
+                
+                # Add EPLD specific data structure
+                release_data.update({
+                    'disruptive_upgrade': True,
+                    'hardware_pmfpga_versions': [
+                        {
+                            'device': 'MDS 9700 Series',
+                            'component': 'Supervisor PMFPGA',
+                            'version': f'Sample-{version_key}'
+                        }
+                    ],
+                    'upgrade_paths_to_this_version': {},
+                    'downgrade_paths_from_this_version': {},
+                    'resolved_bugs': []
+                })
+                
+            elif release_data['type'] == 'Transceiver':
+                print(f"  📡 Processing Transceiver release: {version_key}")
+                
+                # Add Transceiver specific data structure  
+                release_data.update({
+                    'supported_transceivers': [
+                        {
+                            'model': 'Sample Transceiver Model',
+                            'firmware_version': version_key
+                        }
+                    ],
+                    'upgrade_paths_to_this_version': {},
+                    'downgrade_paths_from_this_version': {},
+                    'resolved_bugs': []
+                })
 
     def store_data(self):
         """Store the extracted data in YAML format"""
