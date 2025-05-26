@@ -1,0 +1,42 @@
+# Sample data for testing the Cisco MDS Release Note Agentic System
+
+# This file contains sample data used for testing purposes.
+# The structure and content of this data should reflect the expected format of the actual data
+# that will be processed by the Data Consolidation Agent and queried by the AI Query Assistant.
+
+# Example structure for sample data
+- version: "9.4(3a)"
+  initial_release_date: "2025-05-25"
+  upgrade_paths:
+    open_systems:
+      - source_range_description: "Any 8.x prior to 8.4(2c)"
+        steps: ["8.4(2c)", "9.4(3a)"]
+      - source_range_description: "9.3(x)"
+        steps: ["9.4(3a)"]
+    ficon:
+      - source_range_description: "FICON 9.2(1)"
+        steps: ["9.4(3a)"]
+  resolved_bugs:
+    - id: "CSCxx12345"
+      description: "Memory leak fixed in XYZ process."
+    - id: "CSCyy54321"
+      description: "FICON path issue resolved."
+
+- version: "8.4(2f)"
+  initial_release_date: "2024-01-15"
+  upgrade_paths:
+    open_systems:
+      - source_range_description: "8.3(1)"
+        steps: ["8.4(2f)"]
+    ficon: []
+  resolved_bugs:
+    - id: "CSCzz00000"
+      description: "Resolved bug specific to 8.4(2f)."
+
+- version: "epld-2024.01.15"
+  initial_release_date: "2024-01-15"
+  disruptive_upgrade: true
+  hardware_pmfpga_versions:
+    - device: "MDS 9710 Director"
+      component: "Supervisor PMFPGA"
+      version: "1.2.3"
