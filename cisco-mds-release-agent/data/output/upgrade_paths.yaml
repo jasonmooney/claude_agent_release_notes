@@ -1,6 +1,6 @@
 metadata:
   data_schema_version: '1.0'
-  last_updated_utc: '2025-05-28T03:14:58.303689Z'
+  last_updated_utc: '2025-05-28T03:33:40.756175Z'
   source_urls:
     main_index: https://www.cisco.com/c/en/us/support/storage-networking/mds-9000-nx-os-san-os-software/products-release-notes-list.html
     recommended_releases: https://www.cisco.com/c/en/us/td/docs/switches/datacenter/mds9000/sw/b_MDS_NX-OS_Recommended_Releases.html
@@ -74,10 +74,10 @@ releases:
     upgrade_paths_to_this_version:
       ficon: []
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.2(2)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.2(2)
+        source_range_description: Prior NX-OS versions to 9.2(2)
         source_range_logic:
-          condition: <9.2
+          condition: <9.0
           type: semver_range
         steps:
         - 9.2(2)
@@ -145,10 +145,10 @@ releases:
     upgrade_paths_to_this_version:
       ficon: []
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.3(1)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.3(1)
+        source_range_description: Prior NX-OS versions to 9.3(1)
         source_range_logic:
-          condition: <9.3
+          condition: <9.0
           type: semver_range
         steps:
         - 9.3(1)
@@ -219,10 +219,10 @@ releases:
     upgrade_paths_to_this_version:
       ficon: []
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.3(2)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.3(2)
+        source_range_description: Prior NX-OS versions to 9.3(2)
         source_range_logic:
-          condition: <9.3
+          condition: <9.0
           type: semver_range
         steps:
         - 9.3(2)
@@ -283,10 +283,10 @@ releases:
     upgrade_paths_to_this_version:
       ficon: []
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.3(2a)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.3(2a)
+        source_range_description: Prior NX-OS versions to 9.3(2a)
         source_range_logic:
-          condition: <9.3
+          condition: <9.0
           type: semver_range
         steps:
         - 9.3(2a)
@@ -350,12 +350,19 @@ releases:
     transceiver_info: null
     type: NX-OS
     upgrade_paths_to_this_version:
-      ficon: []
-      open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.4(1)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      ficon:
+      - notes: FICON upgrade path to 9.4(1)
+        source_range_description: FICON compatible versions to 9.4(1)
         source_range_logic:
-          condition: <9.4
+          condition: <9.0
+          type: semver_range
+        steps:
+        - 9.4(1)
+      open_systems:
+      - notes: Standard upgrade path to 9.4(1)
+        source_range_description: Prior NX-OS versions to 9.4(1)
+        source_range_logic:
+          condition: <9.0
           type: semver_range
         steps:
         - 9.4(1)
@@ -421,18 +428,18 @@ releases:
     type: NX-OS
     upgrade_paths_to_this_version:
       ficon:
-      - notes: IBM FICON qualified upgrade path to 9.4(1a)
-        source_range_description: FICON-qualified upgrade from earlier 9.x releases
+      - notes: FICON upgrade path to 9.4(1a)
+        source_range_description: FICON compatible versions to 9.4(1a)
         source_range_logic:
-          condition: <9.4
+          condition: <9.0
           type: semver_range
         steps:
         - 9.4(1a)
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.4(1a)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.4(1a)
+        source_range_description: Prior NX-OS versions to 9.4(1a)
         source_range_logic:
-          condition: <9.4
+          condition: <9.0
           type: semver_range
         steps:
         - 9.4(1a)
@@ -502,10 +509,10 @@ releases:
     upgrade_paths_to_this_version:
       ficon: []
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.4(2)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.4(2)
+        source_range_description: Prior NX-OS versions to 9.4(2)
         source_range_logic:
-          condition: <9.4
+          condition: <9.0
           type: semver_range
         steps:
         - 9.4(2)
@@ -573,10 +580,10 @@ releases:
     upgrade_paths_to_this_version:
       ficon: []
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.4(2a)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.4(2a)
+        source_range_description: Prior NX-OS versions to 9.4(2a)
         source_range_logic:
-          condition: <9.4
+          condition: <9.0
           type: semver_range
         steps:
         - 9.4(2a)
@@ -645,10 +652,10 @@ releases:
     upgrade_paths_to_this_version:
       ficon: []
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.4(3)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.4(3)
+        source_range_description: Prior NX-OS versions to 9.4(3)
         source_range_logic:
-          condition: <9.4
+          condition: <9.0
           type: semver_range
         steps:
         - 9.4(3)
@@ -718,10 +725,10 @@ releases:
     upgrade_paths_to_this_version:
       ficon: []
       open_systems:
-      - notes: Standard non-disruptive upgrade path to 9.4(3a)
-        source_range_description: Non-disruptive upgrade from earlier 9.x releases
+      - notes: Standard upgrade path to 9.4(3a)
+        source_range_description: Prior NX-OS versions to 9.4(3a)
         source_range_logic:
-          condition: <9.4
+          condition: <9.0
           type: semver_range
         steps:
         - 9.4(3a)
