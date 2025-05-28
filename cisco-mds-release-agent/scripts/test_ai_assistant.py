@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
 AI Query Assistant Test Script
-Demonstrates the capabilities of the Cisco MDS Release Note AI Query Assistant
+Demonstrates and validates the capabilities of the Cisco MDS Release Note AI Query Assistant
 """
 
 import sys
 import os
+import time
+import traceback
 sys.path.append('src')
 
 from agents.ai_query_assistant import AIQueryAssistant
@@ -13,8 +15,11 @@ from agents.ai_query_assistant import AIQueryAssistant
 def run_demo_queries():
     """Run a comprehensive demo of the AI Query Assistant capabilities."""
     
-    print("🤖 Cisco MDS AI Query Assistant - Comprehensive Demo")
-    print("=" * 60)
+    print("🤖 Cisco MDS AI Query Assistant - Comprehensive Validation")
+    print("=" * 80)
+    
+    start_time = time.time()
+    test_results = {'passed': 0, 'failed': 0, 'errors': []}
     
     # Initialize the AI Query Assistant
     aqa = AIQueryAssistant()
