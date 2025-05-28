@@ -322,10 +322,13 @@ class DataConsolidationAgent:
     def _extract_release_date(self, soup, version):
         """Extract the actual release date from the document by finding the changelog table"""
         try:
+            print(f"   🔍 Searching for release date in document...")
+            
             # First, look for the changelog table with Date/Description columns
             tables = soup.find_all('table')
+            print(f"   📊 Found {len(tables)} tables to analyze...")
             
-            for table in tables:
+            for i, table in enumerate(tables):
                 # Check if this is a changelog table by looking for headers
                 header_cells = table.find_all(['th', 'td'])
                 
@@ -333,20 +336,51 @@ class DataConsolidationAgent:
                 has_date_header = False
                 has_desc_header = False
                 
-                for cell in header_cells:
+                for cell in header_cells[:10]:  # Check first 10 cells for headers
                     cell_text = cell.get_text().strip().lower()
-                    if 'date' in cell_text:
+                    if 'date' in cell_text and len(cell_text) < 20:  # Avoid false matches
                         has_date_header = True
-                    if 'description' in cell_text:
+                    if any(word in cell_text for word in ['description', 'change', 'note', 'summary']):
                         has_desc_header = True
                 
                 # If this looks like a changelog table, parse it
                 if has_date_header and has_desc_header:
-                    print(f"   📅 Found changelog table, parsing for initial release date...")
-                    return self._parse_changelog_table(table)
+                    print(f"   📅 Found changelog table #{i+1}, parsing for initial release date...")
+                    release_date = self._parse_changelog_table(table)
+                    if release_date:
+                        # Validate that this is a reasonable historical date (not in future)
+                        from datetime import datetime
+                        try:
+                            parsed_dt = datetime.strptime(release_date, '%Y-%m-%d')
+                            current_dt = datetime.now()
+                            
+                            # If date is in the future, it's likely wrong (unless very recent)
+                            if parsed_dt > current_dt:
+                                days_future = (parsed_dt - current_dt).days
+                                if days_future > 30:  # Allow some tolerance
+                                    print(f"   ⚠️ Date {release_date} is {days_future} days in future, continuing search...")
+                                    continue
+                            
+                            print(f"   ✅ Validated historical date: {release_date}")
+                            return release_date
+                        except:
+                            # If parsing fails, still return the date
+                            return release_date
+                
+                # Also check for simpler tables that might be changelog
+                rows = table.find_all('tr')
+                if len(rows) > 1:
+                    # Check if any row contains "initial release"
+                    for row in rows:
+                        row_text = row.get_text().lower()
+                        if 'initial release' in row_text:
+                            print(f"   ✅ Found 'initial release' in table #{i+1}")
+                            release_date = self._parse_changelog_table(table)
+                            if release_date:
+                                return release_date
             
             # Fallback: Look for various date patterns in the document
-            print(f"   📅 No changelog table found, searching for date patterns...")
+            print(f"   📅 No suitable changelog table found, searching for date patterns...")
             return self._search_date_patterns(soup, version)
             
         except Exception as e:
@@ -357,42 +391,59 @@ class DataConsolidationAgent:
         """Parse a changelog table to find the initial release date"""
         try:
             rows = table.find_all('tr')
+            initial_release_date = None
+            all_dates = []
             
-            # Look for the "Initial Release" entry
-            for row in rows:
+            print(f"   🔍 Parsing changelog table with {len(rows)} rows...")
+            
+            # Look for the "Initial Release" entry first (highest priority)
+            for i, row in enumerate(rows):
                 cells = row.find_all(['td', 'th'])
                 if len(cells) >= 2:
                     date_cell = cells[0].get_text().strip()
                     desc_cell = cells[1].get_text().strip()
                     
+                    # Skip obvious header rows
+                    if 'date' in date_cell.lower() and 'description' in desc_cell.lower():
+                        print(f"   📋 Skipping header row: {date_cell} | {desc_cell}")
+                        continue
+                    
                     # Check if this is the initial release row
                     if 'initial release' in desc_cell.lower():
-                        print(f"   ✅ Found initial release entry: {date_cell}")
+                        print(f"   ✅ Found 'Initial Release' entry: {date_cell} | {desc_cell}")
                         parsed_date = self._parse_date_string(date_cell)
                         if parsed_date:
                             return parsed_date
-            
-            # If no "Initial Release" found, look for the last (oldest) date in the table
-            print(f"   ⚠️ No 'Initial Release' entry found, using last date in changelog")
-            dates_found = []
-            
-            for row in rows:
-                cells = row.find_all(['td', 'th'])
-                if len(cells) >= 2:
-                    date_cell = cells[0].get_text().strip()
                     
-                    # Skip header rows
-                    if 'date' in date_cell.lower():
-                        continue
-                    
+                    # Collect all valid dates for fallback
                     parsed_date = self._parse_date_string(date_cell)
                     if parsed_date:
-                        dates_found.append(parsed_date)
+                        all_dates.append((parsed_date, desc_cell, i))
+                        print(f"   📅 Found date: {date_cell} -> {parsed_date} | {desc_cell[:50]}...")
             
-            if dates_found:
-                # Return the earliest (oldest) date, which should be the initial release
-                oldest_date = min(dates_found)
-                print(f"   📅 Using earliest date from changelog: {oldest_date}")
+            # If no "Initial Release" found, use intelligent fallback logic
+            if all_dates:
+                print(f"   ⚠️ No 'Initial Release' entry found, analyzing {len(all_dates)} dates...")
+                
+                # Sort dates chronologically (oldest first)
+                all_dates.sort(key=lambda x: x[0])
+                
+                # Look for patterns that indicate initial release
+                for date_str, description, row_idx in all_dates:
+                    desc_lower = description.lower()
+                    
+                    # Look for initial/first release indicators
+                    if any(phrase in desc_lower for phrase in [
+                        'first published', 'first release', 'original release', 
+                        'initial publication', 'document created'
+                    ]):
+                        print(f"   ✅ Found initial release indicator: {date_str} | {description[:50]}...")
+                        return date_str
+                
+                # If no clear indicators, use the oldest date (last in table usually)
+                oldest_date = all_dates[0][0]
+                oldest_desc = all_dates[0][1]
+                print(f"   📅 Using oldest date as initial release: {oldest_date} | {oldest_desc[:50]}...")
                 return oldest_date
             
             return None
@@ -404,12 +455,17 @@ class DataConsolidationAgent:
     def _search_date_patterns(self, soup, version):
         """Search for date patterns in the document text as fallback"""
         try:
+            from datetime import datetime
+            current_date = datetime.now()
+            
             # Look for various date patterns in Cisco release notes
             date_patterns = [
+                r'Initial Release:?\s*([A-Za-z]+ \d{1,2},? \d{4})',
+                r'First Published:?\s*([A-Za-z]+ \d{1,2},? \d{4})',
+                r'Original Release:?\s*([A-Za-z]+ \d{1,2},? \d{4})',
                 r'Released?:?\s*([A-Za-z]+ \d{1,2},? \d{4})',
                 r'Release Date:?\s*([A-Za-z]+ \d{1,2},? \d{4})',
                 r'Publication Date:?\s*([A-Za-z]+ \d{1,2},? \d{4})',
-                r'Initial Release:?\s*([A-Za-z]+ \d{1,2},? \d{4})',
                 r'(\w+ \d{1,2},? \d{4})',  # Generic date pattern
             ]
             
@@ -417,21 +473,27 @@ class DataConsolidationAgent:
             text_content = soup.get_text()
             
             # Also check common sections where dates appear
-            date_sections = soup.find_all(['p', 'div', 'span'], string=re.compile(r'[Rr]elease|[Dd]ate|[Pp]ublish'))
+            date_sections = soup.find_all(['p', 'div', 'span'], 
+                                        string=re.compile(r'[Rr]elease|[Dd]ate|[Pp]ublish|[Ii]nitial'))
+            
+            found_dates = []
             
             # Check each pattern
             for pattern in date_patterns:
                 # Check main text
-                match = re.search(pattern, text_content, re.IGNORECASE)
-                if match:
+                matches = re.finditer(pattern, text_content, re.IGNORECASE)
+                for match in matches:
                     date_str = match.group(1)
-                    # Try to parse and format the date
-                    try:
-                        parsed_date = self._parse_date_string(date_str)
-                        if parsed_date:
-                            return parsed_date
-                    except:
-                        continue
+                    parsed_date = self._parse_date_string(date_str)
+                    if parsed_date:
+                        # Validate this is a historical date
+                        try:
+                            parsed_dt = datetime.strptime(parsed_date, '%Y-%m-%d')
+                            if parsed_dt <= current_date:
+                                found_dates.append((parsed_date, pattern, 'main_text'))
+                                print(f"   📅 Found valid historical date: {parsed_date} (pattern: {pattern[:30]}...)")
+                        except:
+                            pass
                         
                 # Check specific sections
                 for section in date_sections:
@@ -439,15 +501,25 @@ class DataConsolidationAgent:
                         match = re.search(pattern, section.string, re.IGNORECASE)
                         if match:
                             date_str = match.group(1)
-                            try:
-                                parsed_date = self._parse_date_string(date_str)
-                                if parsed_date:
-                                    return parsed_date
-                            except:
-                                continue
+                            parsed_date = self._parse_date_string(date_str)
+                            if parsed_date:
+                                try:
+                                    parsed_dt = datetime.strptime(parsed_date, '%Y-%m-%d')
+                                    if parsed_dt <= current_date:
+                                        found_dates.append((parsed_date, pattern, 'section'))
+                                        print(f"   📅 Found valid historical date in section: {parsed_date}")
+                                except:
+                                    pass
+            
+            # Return the earliest (oldest) valid date found
+            if found_dates:
+                found_dates.sort(key=lambda x: x[0])  # Sort by date
+                earliest_date = found_dates[0][0]
+                print(f"   ✅ Using earliest valid date found: {earliest_date}")
+                return earliest_date
             
             # If no date found, return estimated date based on version
-            print(f"   ⚠️ No release date found, using estimated date")
+            print(f"   ⚠️ No valid historical release date found, using estimated date")
             return self._estimate_release_date(version)
             
         except Exception as e:
