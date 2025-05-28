@@ -36,3 +36,15 @@ class Logger:
 
     def critical(self, msg):
         self.logger.critical(msg)
+
+def setup_logging(level=logging.INFO):
+    """Set up basic logging configuration"""
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler('data/logs/dca.log'),
+            logging.StreamHandler()
+        ]
+    )
+    return logging.getLogger(__name__)
