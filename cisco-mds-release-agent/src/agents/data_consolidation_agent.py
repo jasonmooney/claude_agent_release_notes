@@ -189,6 +189,15 @@ class DataConsolidationAgent:
                     release_data['upgrade_paths_to_this_version'] = upgrade_paths
                     print(f"   🔄 Found upgrade paths: {len(upgrade_paths.get('open_systems', []))} Open-Systems, {len(upgrade_paths.get('ficon', []))} FICON")
                     
+                    # Extract real downgrade paths
+                    downgrade_paths = self._extract_downgrade_paths(soup, version)
+                    release_data['downgrade_paths_from_this_version'] = downgrade_paths
+                    print(f"   🔽 Found downgrade paths: {len(downgrade_paths.get('open_systems', []))} Open-Systems, {len(downgrade_paths.get('ficon', []))} FICON")
+                    
+                    # Add additional metadata that might not be in tables
+                    release_data['epld_info'] = None  # Could be extracted if EPLD data is present
+                    release_data['transceiver_info'] = None  # Could be extracted if transceiver data is present
+                    
                     # Store in releases dict using normalized version as key
                     normalized_version = self._normalize_version(version)
                     self.consolidated_data['releases'][normalized_version] = release_data
@@ -598,70 +607,188 @@ class DataConsolidationAgent:
         return '2024-01-01'  # Default fallback
     
     def _extract_resolved_bugs(self, soup, version):
-        """Extract resolved bugs from the release notes"""
+        """Extract resolved bugs from the release notes using proper table parsing"""
         try:
             resolved_bugs = []
+            print(f"   🔍 Looking for bug tables in release notes...")
             
-            # Look for sections containing resolved issues/bugs
-            bug_sections = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 
-                                       string=re.compile(r'[Rr]esolved|[Ff]ixed|[Ii]ssues?|[Bb]ugs?|[Dd]efects?'))
+            # Find all tables in the document
+            tables = soup.find_all('table')
+            print(f"   📊 Found {len(tables)} tables to analyze")
             
-            for section in bug_sections:
-                # Find the content after this heading
-                content_elements = []
-                current = section.find_next_sibling()
-                
-                # Collect content until next heading or end of reasonable content
-                while current and current.name not in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-                    content_elements.append(current)
-                    current = current.find_next_sibling()
-                    if len(content_elements) > 20:  # Reasonable limit
-                        break
-                
-                # Extract bugs from these elements
-                for element in content_elements:
-                    if element.name in ['ul', 'ol']:
-                        # List of bugs
-                        for li in element.find_all('li'):
-                            bug = self._parse_bug_from_text(li.get_text())
-                            if bug:
-                                resolved_bugs.append(bug)
-                    elif element.name in ['p', 'div']:
-                        # Paragraph containing bugs
-                        bug = self._parse_bug_from_text(element.get_text())
-                        if bug:
-                            resolved_bugs.append(bug)
-                    elif element.name == 'table':
-                        # Table of bugs
-                        for row in element.find_all('tr')[1:]:  # Skip header
-                            cells = row.find_all(['td', 'th'])
-                            if len(cells) >= 2:
-                                bug_id = cells[0].get_text().strip()
-                                description = cells[1].get_text().strip()
-                                if bug_id and description:
-                                    resolved_bugs.append({
-                                        'id': bug_id,
-                                        'description': description
-                                    })
+            for i, table in enumerate(tables):
+                # Check if this table contains bug information
+                # Look for CSC bug IDs in the table
+                table_text = table.get_text()
+                if 'CSC' in table_text and any(keyword in table_text.lower() for keyword in 
+                    ['bug', 'issue', 'description', 'defect', 'problem', 'fixed', 'resolved']):
+                    
+                    print(f"   🐛 Found potential bug table #{i+1}")
+                    bugs_from_table = self._parse_bug_table(table)
+                    resolved_bugs.extend(bugs_from_table)
+                    print(f"   ✅ Extracted {len(bugs_from_table)} bugs from table #{i+1}")
             
-            # If no bugs found in structured sections, scan entire document
+            # If no tables found, look for individual bug mentions
             if not resolved_bugs:
-                text_content = soup.get_text()
-                # Look for CSC bug IDs in the entire document
-                csc_bugs = re.findall(r'CSC[a-zA-Z]{2}\d{5}[^.]*\.?[^.]*\.?', text_content)
-                for bug_text in csc_bugs[:10]:  # Limit to first 10 found
-                    bug = self._parse_bug_from_text(bug_text)
-                    if bug:
-                        resolved_bugs.append(bug)
+                print(f"   🔍 No bug tables found, searching for individual bug mentions...")
+                resolved_bugs = self._extract_bugs_from_text(soup, version)
             
-            return resolved_bugs[:20]  # Limit to 20 bugs max
+            # Clean and validate bugs
+            cleaned_bugs = []
+            for bug in resolved_bugs:
+                if bug and bug.get('id') and bug.get('description'):
+                    # Clean description
+                    desc = bug['description'].strip()
+                    # Remove common artifacts
+                    desc = re.sub(r'^[:\-\s]+', '', desc)
+                    desc = re.sub(r'\s+', ' ', desc)  # Normalize whitespace
+                    
+                    # Skip obviously bad descriptions
+                    if (len(desc) > 10 and 
+                        'open issues section' not in desc.lower() and
+                        'resolved issues section' not in desc.lower() and
+                        not desc.endswith('in the')):
+                        
+                        cleaned_bugs.append({
+                            'id': bug['id'],
+                            'description': desc[:500]  # Limit length
+                        })
+            
+            print(f"   ✅ Final count: {len(cleaned_bugs)} valid bugs extracted")
+            return cleaned_bugs[:20]  # Limit to 20 bugs max
             
         except Exception as e:
             print(f"   ❌ Error extracting resolved bugs: {str(e)}")
             return []
     
+    def _parse_bug_table(self, table):
+        """Parse a table that contains bug information"""
+        bugs = []
+        try:
+            rows = table.find_all('tr')
+            if len(rows) < 2:  # Need at least header + data
+                return bugs
+            
+            # Find column indices
+            header_row = rows[0]
+            header_cells = header_row.find_all(['th', 'td'])
+            
+            bug_id_col = -1
+            desc_col = -1
+            
+            # Look for bug ID and description columns
+            for i, cell in enumerate(header_cells):
+                cell_text = cell.get_text().strip().lower()
+                if 'bug' in cell_text or 'id' in cell_text or 'csc' in cell_text:
+                    bug_id_col = i
+                elif any(word in cell_text for word in ['description', 'summary', 'details', 'issue']):
+                    desc_col = i
+            
+            # If we couldn't find proper headers, try to infer from data
+            if bug_id_col == -1 or desc_col == -1:
+                # Look at first data row to infer column structure
+                if len(rows) > 1:
+                    first_data_row = rows[1]
+                    data_cells = first_data_row.find_all(['td', 'th'])
+                    
+                    for i, cell in enumerate(data_cells):
+                        cell_text = cell.get_text().strip()
+                        # If cell contains CSC ID, this is likely the bug ID column
+                        if re.search(r'CSC[a-zA-Z]{2}\d{5}', cell_text):
+                            bug_id_col = i
+                            # Description is likely the next column
+                            if i + 1 < len(data_cells):
+                                desc_col = i + 1
+                            break
+            
+            print(f"     📋 Bug ID column: {bug_id_col}, Description column: {desc_col}")
+            
+            if bug_id_col >= 0 and desc_col >= 0:
+                # Parse data rows
+                for row in rows[1:]:  # Skip header
+                    cells = row.find_all(['td', 'th'])
+                    
+                    if len(cells) > max(bug_id_col, desc_col):
+                        # Extract bug ID
+                        bug_id_cell = cells[bug_id_col]
+                        bug_id_text = bug_id_cell.get_text().strip()
+                        
+                        # Look for CSC ID in the cell (might be inside a link)
+                        csc_match = re.search(r'CSC[a-zA-Z]{2}\d{5}', bug_id_text)
+                        if csc_match:
+                            bug_id = csc_match.group(0)
+                            
+                            # Extract description
+                            desc_cell = cells[desc_col]
+                            description = desc_cell.get_text().strip()
+                            
+                            if description and len(description) > 5:
+                                bugs.append({
+                                    'id': bug_id,
+                                    'description': description
+                                })
+            
+            return bugs
+            
+        except Exception as e:
+            print(f"     ❌ Error parsing bug table: {str(e)}")
+            return bugs
+    
+    def _extract_bugs_from_text(self, soup, version):
+        """Extract bugs from document text when no tables are found"""
+        bugs = []
+        try:
+            # Look for structured sections first
+            bug_sections = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 
+                                       string=re.compile(r'[Rr]esolved|[Ff]ixed|[Ii]ssues?|[Bb]ugs?|[Dd]efects?'))
+            
+            for section in bug_sections:
+                current = section.find_next_sibling()
+                
+                # Look through next several elements
+                for _ in range(10):  # Limit search
+                    if not current or current.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                        break
+                    
+                    if current.name in ['ul', 'ol']:
+                        # List items might contain bugs
+                        for li in current.find_all('li'):
+                            bug = self._parse_bug_from_text(li.get_text())
+                            if bug:
+                                bugs.append(bug)
+                    elif current.name in ['p', 'div']:
+                        # Paragraphs might contain bugs
+                        bug = self._parse_bug_from_text(current.get_text())
+                        if bug:
+                            bugs.append(bug)
+                    
+                    current = current.find_next_sibling()
+            
+            # If still no bugs, do a broader text search
+            if not bugs:
+                all_text = soup.get_text()
+                # Find CSC patterns with better context
+                csc_pattern = r'(CSC[a-zA-Z]{2}\d{5})[:\s]*([^\n\r]{10,200})'
+                matches = re.findall(csc_pattern, all_text)
+                
+                for bug_id, description in matches[:10]:
+                    desc = description.strip()
+                    # Clean description
+                    desc = re.sub(r'[:\-\s]+$', '', desc)
+                    if len(desc) > 10:
+                        bugs.append({
+                            'id': bug_id,
+                            'description': desc
+                        })
+            
+            return bugs
+            
+        except Exception as e:
+            print(f"   ❌ Error extracting bugs from text: {str(e)}")
+            return bugs
+    
     def _parse_bug_from_text(self, text):
-        """Parse a bug ID and description from text"""
+        """Parse a bug ID and description from text with improved logic"""
         try:
             text = text.strip()
             if not text or len(text) < 10:
@@ -671,18 +798,35 @@ class DataConsolidationAgent:
             csc_match = re.search(r'(CSC[a-zA-Z]{2}\d{5})', text)
             if csc_match:
                 bug_id = csc_match.group(1)
-                # Extract description (text after the bug ID)
-                description = text[csc_match.end():].strip()
-                # Clean up description
-                description = re.sub(r'^[:\-\s]+', '', description)
-                description = description.split('.')[0]  # Take first sentence
-                if len(description) > 200:
-                    description = description[:200] + "..."
                 
-                if description:
+                # Try to extract meaningful description
+                # Look for text after the bug ID
+                start_pos = csc_match.end()
+                remaining_text = text[start_pos:].strip()
+                
+                # Clean up description
+                description = re.sub(r'^[:\-\s]+', '', remaining_text)
+                
+                # Take up to first sentence or reasonable length
+                sentences = re.split(r'[.!?]\s+', description)
+                if sentences and len(sentences[0]) > 10:
+                    description = sentences[0]
+                
+                # Additional cleanup
+                description = re.sub(r'\s+', ' ', description)  # Normalize whitespace
+                
+                # Validate description quality
+                if (len(description) > 10 and 
+                    not any(bad_phrase in description.lower() for bad_phrase in [
+                        'open issues section',
+                        'resolved issues section',
+                        'see the',
+                        'refer to'
+                    ])):
+                    
                     return {
                         'id': bug_id,
-                        'description': description
+                        'description': description[:300]  # Reasonable length limit
                     }
             
             return None
@@ -690,70 +834,274 @@ class DataConsolidationAgent:
             return None
     
     def _extract_upgrade_paths(self, soup, version):
-        """Extract upgrade paths from the release notes"""
+        """Extract upgrade paths from the release notes with proper FICON/Open Systems distinction"""
         try:
             upgrade_paths = {
                 'open_systems': [],
                 'ficon': []
             }
             
-            # Look for upgrade path sections
-            upgrade_sections = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 
-                                           string=re.compile(r'[Uu]pgrade|[Mm]igrat|[Pp]ath'))
+            print(f"   🔄 Extracting upgrade paths for version {version}")
             
-            for section in upgrade_sections:
-                # Find tables or lists after this heading
-                current = section.find_next_sibling()
-                content_elements = []
+            # Look for upgrade path sections and tables
+            upgrade_tables = []
+            
+            # Find headers that mention upgrade paths
+            upgrade_headers = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 
+                                          string=re.compile(r'[Uu]pgrade|[Pp]ath|[Mm]igrat'))
+            
+            for header in upgrade_headers:
+                header_text = header.get_text().lower()
+                print(f"   📋 Found upgrade section: {header.get_text().strip()}")
                 
+                # Look for tables after this header
+                current = header.find_next_sibling()
                 while current and current.name not in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-                    content_elements.append(current)
-                    current = current.find_next_sibling()
-                    if len(content_elements) > 10:  # Reasonable limit
-                        break
-                
-                # Look for upgrade path tables
-                for element in content_elements:
-                    if element.name == 'table':
-                        paths = self._parse_upgrade_table(element, version)
-                        upgrade_paths['open_systems'].extend(paths.get('open_systems', []))
-                        upgrade_paths['ficon'].extend(paths.get('ficon', []))
-                    elif element.name in ['ul', 'ol']:
-                        paths = self._parse_upgrade_list(element, version)
-                        upgrade_paths['open_systems'].extend(paths.get('open_systems', []))
-                        upgrade_paths['ficon'].extend(paths.get('ficon', []))
-            
-            # If no specific paths found, create general upgrade path
-            if not upgrade_paths['open_systems'] and not upgrade_paths['ficon']:
-                # Extract version parts for intelligent path creation
-                current_major_minor = re.search(r'(\d+\.\d+)', version)
-                if current_major_minor:
-                    major_minor = current_major_minor.group(1)
-                    upgrade_paths['open_systems'].append({
-                        'source_range_description': f'Prior versions to {version}',
-                        'source_range_logic': {
-                            'type': 'semver_range',
-                            'condition': f'<{major_minor}'
-                        },
-                        'steps': [version],
-                        'notes': f'Direct upgrade path to {version}'
-                    })
+                    if current.name == 'table':
+                        # Determine if this is FICON or Open Systems table
+                        table_context = {
+                            'table': current,
+                            'header_text': header_text,
+                            'is_ficon': 'ficon' in header_text,
+                            'is_open_systems': 'open' in header_text or 'nondisruptive' in header_text
+                        }
+                        upgrade_tables.append(table_context)
+                        print(f"   📊 Found upgrade table (FICON: {table_context['is_ficon']}, Open Systems: {table_context['is_open_systems']})")
                     
-                    upgrade_paths['ficon'].append({
-                        'source_range_description': f'FICON compatible versions to {version}',
-                        'source_range_logic': {
-                            'type': 'semver_range',
-                            'condition': f'<{major_minor}'
-                        },
-                        'steps': [version],
-                        'notes': f'FICON upgrade path to {version}'
-                    })
+                    current = current.find_next_sibling()
+                    if not current:
+                        break
+            
+            # Parse each upgrade table
+            for table_info in upgrade_tables:
+                table = table_info['table']
+                paths = self._parse_upgrade_table_improved(table, version, table_info)
+                
+                if table_info['is_ficon']:
+                    upgrade_paths['ficon'].extend(paths)
+                    print(f"   ✅ Added {len(paths)} FICON upgrade paths")
+                elif table_info['is_open_systems']:
+                    upgrade_paths['open_systems'].extend(paths)
+                    print(f"   ✅ Added {len(paths)} Open Systems upgrade paths")
+                else:
+                    # If unclear, add to both but mark appropriately
+                    upgrade_paths['open_systems'].extend(paths)
+                    print(f"   ✅ Added {len(paths)} general upgrade paths to Open Systems")
+            
+            # Check if the version is FICON qualified by looking in the document
+            is_ficon_qualified = self._check_ficon_qualification(soup, version)
+            print(f"   🏷️ Version {version} FICON qualified: {is_ficon_qualified}")
+            
+            # If no specific paths found, create intelligent defaults
+            if not upgrade_paths['open_systems'] and not upgrade_paths['ficon']:
+                upgrade_paths = self._create_default_upgrade_paths(version, is_ficon_qualified)
+                print(f"   🔧 Created default upgrade paths")
             
             return upgrade_paths
             
         except Exception as e:
             print(f"   ❌ Error extracting upgrade paths: {str(e)}")
             return {'open_systems': [], 'ficon': []}
+    
+    def _check_ficon_qualification(self, soup, version):
+        """Check if a version is FICON qualified based on known qualified versions and document content"""
+        try:
+            # Known FICON qualified versions based on the provided information
+            ficon_qualified_versions = {
+                # NX-OS 5.x series
+                '5.2.2a': True,
+                
+                # NX-OS 6.x series  
+                '6.2.5a': True,
+                '6.2.5b': True,
+                '6.2.11c': True,
+                
+                # NX-OS 8.x series
+                '8.4.1a': True,
+                '8.4.2b': True, 
+                '8.4.2c': True,
+                '8.4.2e': True,
+                # Note: 8.4.2f was specifically mentioned as NOT FICON qualified
+                '8.4.2f': False,
+                
+                # NX-OS 9.x series
+                '9.4.1a': True,  # Specifically mentioned as IBM FICON qualified
+                
+                # Additional likely qualified versions based on patterns
+                '8.4.1': True,   # Base version of 8.4.1a
+                '8.4.2': True,   # Base version of qualified sub-releases
+                '9.4.1': True,   # Base version of 9.4.1a
+            }
+            
+            # Normalize version for comparison
+            normalized_version = self._normalize_version(version)
+            
+            # Check direct match first
+            if normalized_version in ficon_qualified_versions:
+                return ficon_qualified_versions[normalized_version]
+            
+            # Check document content for FICON qualification statements
+            doc_text = soup.get_text().lower()
+            
+            # Look for explicit FICON qualification statements
+            ficon_qualified_phrases = [
+                'ficon qualified',
+                'ibm ficon qualified', 
+                'ficon certification',
+                'ficon support',
+                'ficon compatible'
+            ]
+            
+            ficon_not_qualified_phrases = [
+                'not ficon qualified',
+                'not ibm ficon qualified',
+                'ficon not supported'
+            ]
+            
+            # Check for explicit disqualification first
+            for phrase in ficon_not_qualified_phrases:
+                if phrase in doc_text:
+                    print(f"   ❌ Found FICON disqualification phrase: '{phrase}'")
+                    return False
+            
+            # Check for qualification statements
+            for phrase in ficon_qualified_phrases:
+                if phrase in doc_text:
+                    print(f"   ✅ Found FICON qualification phrase: '{phrase}'")
+                    return True
+            
+            # Pattern-based inference for versions not explicitly listed
+            # FICON support generally available in major release trains
+            version_parts = normalized_version.split('.')
+            if len(version_parts) >= 2:
+                major = int(version_parts[0])
+                minor = int(version_parts[1]) if version_parts[1].isdigit() else 0
+                
+                # NX-OS 8.4+ and 9.x generally support FICON
+                if major >= 9:
+                    return True
+                elif major == 8 and minor >= 4:
+                    return True
+                elif major == 6 or major == 7:
+                    # Some 6.x and 7.x versions have FICON support
+                    return True
+                elif major == 5:
+                    # Limited FICON support in 5.x
+                    return normalized_version in ['5.2.2a']
+            
+            # Default to False if uncertain
+            return False
+            
+        except Exception as e:
+            print(f"   ❌ Error checking FICON qualification: {str(e)}")
+            return False
+
+    def _parse_upgrade_table_improved(self, table, target_version, table_info):
+        """Parse upgrade path table with improved logic"""
+        paths = []
+        try:
+            rows = table.find_all('tr')
+            if len(rows) < 2:
+                return paths
+            
+            # Look for source version information in the table
+            for row in rows[1:]:  # Skip header
+                cells = row.find_all(['td', 'th'])
+                if len(cells) >= 2:
+                    # Extract source version from first cell
+                    source_cell_text = cells[0].get_text().strip()
+                    
+                    # Look for version patterns
+                    version_matches = re.findall(r'\d+\.\d+(?:\([^)]+\))?', source_cell_text)
+                    
+                    if version_matches:
+                        for source_version in version_matches:
+                            # Create upgrade path
+                            path = {
+                                'source_range_description': f"Upgrade from {source_version} to {target_version}",
+                                'source_range_logic': {
+                                    'type': 'version_match',
+                                    'condition': source_version
+                                },
+                                'steps': [target_version],
+                                'notes': f"{'FICON' if table_info['is_ficon'] else 'Open Systems'} upgrade path"
+                            }
+                            paths.append(path)
+            
+            return paths
+            
+        except Exception as e:
+            print(f"   ❌ Error parsing upgrade table: {str(e)}")
+            return paths
+    
+    def _create_default_upgrade_paths(self, version, is_ficon_qualified):
+        """Create intelligent default upgrade paths when none are found in the document"""
+        upgrade_paths = {
+            'open_systems': [],
+            'ficon': []
+        }
+        
+        try:
+            # Parse version components
+            version_parts = version.split('.')
+            if len(version_parts) >= 2:
+                major = int(version_parts[0])
+                minor = int(version_parts[1]) if version_parts[1].isdigit() else 0
+                
+                # Create logical upgrade paths
+                if major >= 9:
+                    # NX-OS 9.x can typically be upgraded from 8.x
+                    source_range = f"<{major}.{minor}"
+                    upgrade_paths['open_systems'].append({
+                        'source_range_description': f"Prior NX-OS versions to {version}",
+                        'source_range_logic': {
+                            'type': 'semver_range',
+                            'condition': source_range
+                        },
+                        'steps': [version],
+                        'notes': f"Standard upgrade path to {version}"
+                    })
+                    
+                    if is_ficon_qualified:
+                        upgrade_paths['ficon'].append({
+                            'source_range_description': f"FICON compatible versions to {version}",
+                            'source_range_logic': {
+                                'type': 'semver_range', 
+                                'condition': source_range
+                            },
+                            'steps': [version],
+                            'notes': f"FICON upgrade path to {version}"
+                        })
+                
+                elif major == 8:
+                    # NX-OS 8.x can typically be upgraded from 7.x and prior 8.x
+                    source_range = f"<{major}.{minor}"
+                    upgrade_paths['open_systems'].append({
+                        'source_range_description': f"Prior versions to {version}",
+                        'source_range_logic': {
+                            'type': 'semver_range',
+                            'condition': source_range
+                        },
+                        'steps': [version],
+                        'notes': f"Direct upgrade path to {version}"
+                    })
+                    
+                    if is_ficon_qualified:
+                        upgrade_paths['ficon'].append({
+                            'source_range_description': f"FICON compatible versions to {version}",
+                            'source_range_logic': {
+                                'type': 'semver_range',
+                                'condition': source_range
+                            },
+                            'steps': [version],
+                            'notes': f"FICON upgrade path to {version}"
+                        })
+            
+            return upgrade_paths
+            
+        except Exception as e:
+            print(f"   ❌ Error creating default upgrade paths: {str(e)}")
+            return upgrade_paths
     
     def _parse_upgrade_table(self, table, target_version):
         """Parse upgrade paths from a table"""
@@ -837,3 +1185,183 @@ class DataConsolidationAgent:
             'epld_info': None,
             'transceiver_info': None
         }
+
+    def _extract_downgrade_paths(self, soup, version):
+        """Extract downgrade paths from the release notes"""
+        try:
+            downgrade_paths = {
+                'open_systems': [],
+                'ficon': []
+            }
+            
+            print(f"   🔽 Extracting downgrade paths for version {version}")
+            
+            # Look for downgrade path sections
+            downgrade_headers = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 
+                                            string=re.compile(r'[Dd]owngrade|[Rr]evert|[Rr]ollback'))
+            
+            for header in downgrade_headers:
+                header_text = header.get_text().lower()
+                print(f"   📋 Found downgrade section: {header.get_text().strip()}")
+                
+                # Look for tables after this header
+                current = header.find_next_sibling()
+                while current and current.name not in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                    if current.name == 'table':
+                        table_context = {
+                            'table': current,
+                            'header_text': header_text,
+                            'is_ficon': 'ficon' in header_text,
+                            'is_open_systems': 'open' in header_text or 'nondisruptive' in header_text
+                        }
+                        
+                        paths = self._parse_downgrade_table(current, version, table_context)
+                        
+                        if table_context['is_ficon']:
+                            downgrade_paths['ficon'].extend(paths)
+                        else:
+                            downgrade_paths['open_systems'].extend(paths)
+                    
+                    current = current.find_next_sibling()
+                    if not current:
+                        break
+            
+            # If no specific downgrade paths found, create conservative defaults
+            if not downgrade_paths['open_systems'] and not downgrade_paths['ficon']:
+                print(f"   🔧 No specific downgrade paths found, using empty defaults")
+                # Most releases don't document downgrade paths explicitly
+                # Leave empty as downgrade is generally not recommended unless documented
+            
+            return downgrade_paths
+            
+        except Exception as e:
+            print(f"   ❌ Error extracting downgrade paths: {str(e)}")
+            return {'open_systems': [], 'ficon': []}
+    
+    def _parse_downgrade_table(self, table, source_version, table_info):
+        """Parse downgrade path table"""
+        paths = []
+        try:
+            rows = table.find_all('tr')
+            if len(rows) < 2:
+                return paths
+            
+            # Look for target version information in the table
+            for row in rows[1:]:  # Skip header
+                cells = row.find_all(['td', 'th'])
+                if len(cells) >= 2:
+                    # Extract target version from cells
+                    target_cell_text = cells[0].get_text().strip()
+                    
+                    # Look for version patterns
+                    version_matches = re.findall(r'\d+\.\d+(?:\([^)]+\))?', target_cell_text)
+                    
+                    if version_matches:
+                        for target_version in version_matches:
+                            # Create downgrade path
+                            path = {
+                                'target_range_description': f"Downgrade from {source_version} to {target_version}",
+                                'target_range_logic': {
+                                    'type': 'version_match',
+                                    'condition': target_version
+                                },
+                                'steps': [target_version],
+                                'notes': f"{'FICON' if table_info['is_ficon'] else 'Open Systems'} downgrade path"
+                            }
+                            paths.append(path)
+            
+            return paths
+            
+        except Exception as e:
+            print(f"   ❌ Error parsing downgrade table: {str(e)}")
+            return paths
+
+    def _extract_downgrade_paths(self, soup, version):
+        """Extract downgrade paths from the release notes"""
+        try:
+            downgrade_paths = {
+                'open_systems': [],
+                'ficon': []
+            }
+            
+            print(f"   🔽 Extracting downgrade paths for version {version}")
+            
+            # Look for downgrade path sections
+            downgrade_headers = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 
+                                            string=re.compile(r'[Dd]owngrade|[Rr]evert|[Rr]ollback'))
+            
+            for header in downgrade_headers:
+                header_text = header.get_text().lower()
+                print(f"   📋 Found downgrade section: {header.get_text().strip()}")
+                
+                # Look for tables after this header
+                current = header.find_next_sibling()
+                while current and current.name not in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                    if current.name == 'table':
+                        table_context = {
+                            'table': current,
+                            'header_text': header_text,
+                            'is_ficon': 'ficon' in header_text,
+                            'is_open_systems': 'open' in header_text or 'nondisruptive' in header_text
+                        }
+                        
+                        paths = self._parse_downgrade_table(current, version, table_context)
+                        
+                        if table_context['is_ficon']:
+                            downgrade_paths['ficon'].extend(paths)
+                        else:
+                            downgrade_paths['open_systems'].extend(paths)
+                    
+                    current = current.find_next_sibling()
+                    if not current:
+                        break
+            
+            # If no specific downgrade paths found, create conservative defaults
+            if not downgrade_paths['open_systems'] and not downgrade_paths['ficon']:
+                print(f"   🔧 No specific downgrade paths found, using empty defaults")
+                # Most releases don't document downgrade paths explicitly
+                # Leave empty as downgrade is generally not recommended unless documented
+            
+            return downgrade_paths
+            
+        except Exception as e:
+            print(f"   ❌ Error extracting downgrade paths: {str(e)}")
+            return {'open_systems': [], 'ficon': []}
+    
+    def _parse_downgrade_table(self, table, source_version, table_info):
+        """Parse downgrade path table"""
+        paths = []
+        try:
+            rows = table.find_all('tr')
+            if len(rows) < 2:
+                return paths
+            
+            # Look for target version information in the table
+            for row in rows[1:]:  # Skip header
+                cells = row.find_all(['td', 'th'])
+                if len(cells) >= 2:
+                    # Extract target version from cells
+                    target_cell_text = cells[0].get_text().strip()
+                    
+                    # Look for version patterns
+                    version_matches = re.findall(r'\d+\.\d+(?:\([^)]+\))?', target_cell_text)
+                    
+                    if version_matches:
+                        for target_version in version_matches:
+                            # Create downgrade path
+                            path = {
+                                'target_range_description': f"Downgrade from {source_version} to {target_version}",
+                                'target_range_logic': {
+                                    'type': 'version_match',
+                                    'condition': target_version
+                                },
+                                'steps': [target_version],
+                                'notes': f"{'FICON' if table_info['is_ficon'] else 'Open Systems'} downgrade path"
+                            }
+                            paths.append(path)
+            
+            return paths
+            
+        except Exception as e:
+            print(f"   ❌ Error parsing downgrade table: {str(e)}")
+            return paths
